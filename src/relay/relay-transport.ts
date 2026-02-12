@@ -20,7 +20,7 @@ import { generateTaskId, generateMessageId } from "../transport.js";
 import type { Keypair } from "./keypair.js";
 import { publicKeyToHex, hexToPublicKey } from "./keypair.js";
 import { encryptMessage, decryptMessage, type EncryptedMessage } from "./encryption.js";
-import { RelayClient, createNostrEvent, type NostrEvent } from "./relay-client.js";
+import { RelayClient, createNostrEvent, getNostrPubkey, type NostrEvent } from "./relay-client.js";
 
 /**
  * Relay transport configuration
@@ -76,6 +76,7 @@ export class RelayTransport extends EventEmitter {
   private logger: Logger;
   private clients: RelayClient[] = [];
   private identity: string;
+  private nostrPubkey: string;
   private subscriptionId: string;
   private pendingRequests = new Map<
     string,
@@ -90,6 +91,7 @@ export class RelayTransport extends EventEmitter {
     this.config = config;
     this.logger = config.logger ?? defaultLogger;
     this.identity = publicKeyToHex(config.keypair.publicKey);
+    this.nostrPubkey = getNostrPubkey(config.keypair.privateKey);
     this.subscriptionId = `sub-${Date.now()}`;
   }
 
@@ -129,9 +131,11 @@ export class RelayTransport extends EventEmitter {
         await client.connect();
 
         // Subscribe to messages for our public key (kind 4 = encrypted direct messages in Nostr)
+        // Subscribe to messages tagged with our Ed25519 identity
+        // We use a custom "t" tag with our identity since peers know our Ed25519 pubkey
         client.subscribe(this.subscriptionId, {
           kinds: [4],
-          "#p": [this.identity],
+          "#t": [this.identity],
         });
 
         this.clients.push(client);
@@ -144,7 +148,7 @@ export class RelayTransport extends EventEmitter {
       throw new Error("Failed to connect to any relay");
     }
 
-    this.logger.info(`Listening on ${this.clients.length} relay(s) as ${this.identity}`);
+    this.logger.info(`Listening on ${this.clients.length} relay(s) as ${this.identity} (nostr: ${this.nostrPubkey.slice(0, 16)}...)`);
   }
 
   /**
@@ -204,7 +208,7 @@ export class RelayTransport extends EventEmitter {
           pubkey: this.identity,
           kind: 4,
           content: JSON.stringify(encrypted),
-          tags: [["p", message.recipientPubKey]],
+          tags: [["p", message.recipientPubKey], ["t", message.recipientPubKey]],
           privateKey: this.config.keypair.privateKey,
         });
 
@@ -390,7 +394,7 @@ export class RelayTransport extends EventEmitter {
       pubkey: this.identity,
       kind: 4,
       content: JSON.stringify(encrypted),
-      tags: [["p", senderPubKey]],
+      tags: [["p", senderPubKey], ["t", senderPubKey]],
       privateKey: this.config.keypair.privateKey,
     });
 

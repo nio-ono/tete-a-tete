@@ -5,6 +5,14 @@
 
 import { EventEmitter } from "node:events";
 import { createHash, randomBytes } from "node:crypto";
+import { schnorr } from "@noble/secp256k1";
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString("hex");
+}
+function hexToBytes(hex: string): Uint8Array {
+  return Buffer.from(hex, "hex");
+}
 
 /**
  * Nostr event structure
@@ -267,7 +275,23 @@ export class RelayClient extends EventEmitter {
 }
 
 /**
- * Create a signed Nostr event
+ * Derive a secp256k1 private key from an Ed25519 private key.
+ * Uses SHA256 of the Ed25519 key as the secp256k1 key material.
+ */
+function deriveSecp256k1Key(ed25519Private: Buffer): Uint8Array {
+  return createHash("sha256").update(ed25519Private).update(Buffer.from("ttt-nostr-key")).digest();
+}
+
+/**
+ * Get the Nostr pubkey (x-only secp256k1) for a given Ed25519 private key
+ */
+export function getNostrPubkey(ed25519Private: Buffer): string {
+  const secpPriv = deriveSecp256k1Key(ed25519Private);
+  return bytesToHex(schnorr.getPublicKey(secpPriv));
+}
+
+/**
+ * Create a signed Nostr event (NIP-01 compliant)
  */
 export function createNostrEvent(params: {
   pubkey: string;
@@ -276,38 +300,27 @@ export function createNostrEvent(params: {
   tags?: string[][];
   privateKey: Buffer;
 }): NostrEvent {
+  const secpPriv = deriveSecp256k1Key(params.privateKey);
+  const nostrPubkey = bytesToHex(schnorr.getPublicKey(secpPriv));
+
   const event = {
-    pubkey: params.pubkey,
+    pubkey: nostrPubkey,
     created_at: Math.floor(Date.now() / 1000),
     kind: params.kind,
     tags: params.tags || [],
     content: params.content,
   };
 
-  // Create event ID (SHA256 of serialized event)
+  // NIP-01: event ID = SHA256 of [0, pubkey, created_at, kind, tags, content]
   const serialized = JSON.stringify([0, event.pubkey, event.created_at, event.kind, event.tags, event.content]);
   const id = createHash("sha256").update(serialized).digest("hex");
 
-  // Sign with schnorr (using Ed25519 private key)
-  const signature = schnorrSign(id, params.privateKey);
+  // BIP-340 Schnorr signature
+  const sig = bytesToHex(schnorr.sign(hexToBytes(id), secpPriv));
 
   return {
     id,
-    sig: signature,
+    sig,
     ...event,
   };
-}
-
-/**
- * Simple Schnorr signature (for Nostr)
- * Note: This is a simplified version. For production, use a proper Schnorr library.
- */
-function schnorrSign(messageHash: string, privateKey: Buffer): string {
-  // For simplicity, we'll use the message hash + private key hash as signature
-  // In a real implementation, you'd use proper Schnorr signatures
-  const sigData = createHash("sha256")
-    .update(Buffer.concat([Buffer.from(messageHash, "hex"), privateKey]))
-    .digest();
-
-  return sigData.toString("hex") + randomBytes(32).toString("hex");
 }
