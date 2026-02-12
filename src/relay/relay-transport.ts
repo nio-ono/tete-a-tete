@@ -136,6 +136,7 @@ export class RelayTransport extends EventEmitter {
         client.subscribe(this.subscriptionId, {
           kinds: [4],
           "#t": [this.identity],
+          since: Math.floor(Date.now() / 1000) - 30, // only messages from last 30 seconds
         });
 
         this.clients.push(client);
