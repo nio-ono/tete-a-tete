@@ -4,4 +4,5 @@ dist/
 state.json
 inbox/
 memory/
+logs/
 JOB.md

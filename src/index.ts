@@ -49,29 +49,44 @@ export {
   buildMessageSendRequest,
 } from "./transport.js";
 
+// Relay Transport
+export {
+  RelayTransport,
+  RelayClient,
+  generateKeypair,
+  publicKeyToHex,
+  hexToPublicKey,
+  saveKeypair,
+  loadKeypair,
+  loadOrGenerateKeypair,
+  encryptMessage,
+  decryptMessage,
+  createNostrEvent,
+} from "./relay/index.js";
+
 // Types
 export type {
   // Agent Card
   AgentCard,
   AgentCapabilities,
   AgentSkill,
-  
+
   // Messages
   TextPart,
   DataPart,
   MessagePart,
   A2AMessage,
-  
+
   // Tasks
   Task,
   TaskStatus,
   TaskState,
-  
+
   // JSON-RPC
   JsonRpcRequest,
   JsonRpcResponse,
   JsonRpcError,
-  
+
   // Server
   A2AServerConfig,
   MessageHandler,
@@ -79,14 +94,25 @@ export type {
   SenderInfo,
   MessageResponse,
   Logger,
-  
+
   // Client
   SendOptions,
   SendResult,
-  
+
   // Protocol
   MessageSendParams,
   MessageSendResult,
 } from "./types.js";
+
+// Relay Types
+export type {
+  Keypair,
+  EncryptedMessage,
+  NostrEvent,
+  RelayClientOptions,
+  RelayTransportConfig,
+  RelayMessage,
+  RelaySendResult,
+} from "./relay/index.js";
 
 export { JSON_RPC_ERRORS } from "./types.js";
