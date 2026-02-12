@@ -224,6 +224,64 @@ Response:
 }
 ```
 
+## Relay Transport (P2P via Nostr)
+
+When direct HTTP isn't possible (NAT, firewalls, different networks), tête-à-tête can communicate through Nostr relays as encrypted mailboxes.
+
+### Setup
+
+```typescript
+import { RelayTransport, loadOrGenerateKeypair } from 'tete-a-tete';
+
+// Each agent has an Ed25519 keypair as identity
+const keypair = await loadOrGenerateKeypair('~/.ttt-keypair.json');
+
+const transport = new RelayTransport({
+  keypair,
+  relays: ['wss://relay.damus.io', 'wss://nos.lol'],
+  agentName: 'MyAgent',
+  onMessage: async (msg, sender) => {
+    console.log(`${sender.name}: ${msg.text}`);
+    return { text: 'Got it!' };
+  },
+});
+
+await transport.connect();
+console.log('Public key:', transport.getPublicKey());
+```
+
+### Sending
+
+```typescript
+const result = await transport.send({
+  recipientPubKey: 'their-ed25519-pubkey-hex',
+  text: 'Hello via relay!',
+  senderName: 'MyAgent',
+});
+// result.success === true
+```
+
+### How It Works
+
+1. **Identity:** Ed25519 keypair per agent. Public key is the identity.
+2. **Signing:** Messages become Nostr events signed with Schnorr (BIP-340, secp256k1 derived from Ed25519).
+3. **Encryption:** ECDH shared secret from both pubkeys → AES-256-GCM per message.
+4. **Transport:** Nostr relays are dumb mailboxes. Messages are tagged with the recipient's identity for subscription filtering.
+5. **Dedup:** `since` filter on subscription prevents old message replay on reconnect.
+
+### Keypair Management
+
+```typescript
+import { generateKeypair, loadOrGenerateKeypair, publicKeyToHex } from 'tete-a-tete';
+
+// Generate fresh
+const kp = await generateKeypair();
+console.log(publicKeyToHex(kp.publicKey)); // hex string to share with peers
+
+// Load or generate (persists to file)
+const kp2 = await loadOrGenerateKeypair('/path/to/keypair.json');
+```
+
 ## Examples
 
 ### Echo Server
