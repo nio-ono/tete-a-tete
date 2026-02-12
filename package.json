@@ -1,0 +1,45 @@
+{
+  "name": "tete-a-tete",
+  "version": "0.1.0",
+  "description": "Framework-agnostic A2A (Agent-to-Agent) protocol implementation",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "a2a",
+    "agent",
+    "protocol",
+    "agent-to-agent",
+    "llm",
+    "ai"
+  ],
+  "author": "Antonio Ono",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nio-ono/tete-a-tete"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
