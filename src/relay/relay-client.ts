@@ -5,7 +5,16 @@
 
 import { EventEmitter } from "node:events";
 import { createHash, randomBytes } from "node:crypto";
-import { schnorr } from "@noble/secp256k1";
+import { schnorr, hashes as nobleHashes } from "@noble/secp256k1";
+import { createHash as nodeCreateHash, createHmac as nodeCreateHmac } from "node:crypto";
+
+// Configure noble/secp256k1 to use Node's crypto
+(nobleHashes as any).sha256 = (data: Uint8Array) => {
+  return new Uint8Array(nodeCreateHash("sha256").update(data).digest());
+};
+(nobleHashes as any).hmacSha256 = (key: Uint8Array, message: Uint8Array) => {
+  return new Uint8Array(nodeCreateHmac("sha256", key).update(message).digest());
+};
 
 function bytesToHex(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString("hex");
