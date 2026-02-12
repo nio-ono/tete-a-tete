@@ -1,5 +1,8 @@
 /**
  * A2A Server - HTTP server for receiving A2A messages
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 
 import http from "node:http";
@@ -34,6 +37,9 @@ const defaultLogger: Logger = {
 
 /**
  * A2A Server for receiving messages from other agents
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  * 
  * @example
  * ```typescript
@@ -287,6 +293,9 @@ export class A2AServer {
 
 /**
  * Create a new A2A server instance
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function createServer(config: A2AServerConfig): A2AServer {
   return new A2AServer(config);

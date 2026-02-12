@@ -1,5 +1,8 @@
 /**
  * HTTP Transport Layer for A2A Protocol
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 
 import type { IncomingMessage as HttpRequest, ServerResponse } from "node:http";
@@ -8,6 +11,9 @@ import { JSON_RPC_ERRORS } from "./types.js";
 
 /**
  * Read and parse JSON body from HTTP request
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export async function readJsonBody<T = unknown>(
   req: HttpRequest,
@@ -46,6 +52,9 @@ export async function readJsonBody<T = unknown>(
 
 /**
  * Send JSON response
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function sendJson(res: ServerResponse, statusCode: number, data: unknown): void {
   res.statusCode = statusCode;
@@ -55,6 +64,9 @@ export function sendJson(res: ServerResponse, statusCode: number, data: unknown)
 
 /**
  * Send JSON-RPC error response
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function sendJsonRpcError(
   res: ServerResponse,
@@ -76,6 +88,9 @@ export function sendJsonRpcError(
 
 /**
  * Send JSON-RPC success response
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function sendJsonRpcSuccess(
   res: ServerResponse,
@@ -106,6 +121,9 @@ export function generateTaskId(): string {
 
 /**
  * Build A2A JSON-RPC request for message/send
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function buildMessageSendRequest(
   text: string,

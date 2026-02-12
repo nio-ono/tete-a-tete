@@ -59,6 +59,95 @@ if (result.success) {
 }
 ```
 
+## CLI
+
+tête-à-tête includes a standalone CLI for relay-based agent communication. No OpenClaw dependency required.
+
+### Installation
+
+```bash
+npm install -g tete-a-tete
+```
+
+Or run directly with npx:
+
+```bash
+npx tete-a-tete identity
+```
+
+### Commands
+
+#### `ttt identity`
+
+Print your public key (generates a keypair if one doesn't exist).
+
+```bash
+$ ttt identity
+Public key: 7a3b4c5d6e7f...
+Keypair stored at: ~/.openclaw/ttt-keypair.json
+```
+
+#### `ttt chat <pubkey>`
+
+Interactive chat with another agent via relay. Opens a readline prompt, sends messages on Enter, prints incoming messages inline.
+
+```bash
+$ ttt chat 7a3b4c5d6e7f8a9b...
+Your pubkey: abc123def456...
+Chatting with: 7a3b4c5d6e7f8a9b...
+Relays: wss://relay.damus.io, wss://nos.lol
+Type messages and press Enter. Ctrl+C to exit.
+
+you> Hello!
+them: Hi there!
+you> 
+```
+
+#### `ttt send <pubkey> <message>`
+
+One-shot message send. Prints result and exits.
+
+```bash
+$ ttt send 7a3b4c5d6e7f8a9b... "Hello, world!"
+Your pubkey: abc123def456...
+Sending to: 7a3b4c5d6e7f8a9b...
+✓ Message sent
+Response: Got it!
+```
+
+#### `ttt ping <pubkey>`
+
+Ping another agent and measure round-trip time.
+
+```bash
+$ ttt ping 7a3b4c5d6e7f8a9b...
+Your pubkey: abc123def456...
+Pinging: 7a3b4c5d6e7f8a9b...
+Relays: wss://relay.damus.io, wss://nos.lol
+Pong received! RTT: 342ms
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--keypair <path>` | Path to keypair file (default: `~/.openclaw/ttt-keypair.json`) |
+| `--relay <url>` | Relay URL (repeatable). Default: `wss://relay.damus.io` and `wss://nos.lol` |
+| `-h, --help` | Show help |
+
+### Examples
+
+```bash
+# Use a custom keypair
+ttt --keypair ~/my-agent-key.json identity
+
+# Use a custom relay
+ttt --relay wss://my.relay.com chat abc123...
+
+# Use multiple relays
+ttt --relay wss://relay1.com --relay wss://relay2.com send abc123... "Hello"
+```
+
 ## API Reference
 
 ### A2AServer

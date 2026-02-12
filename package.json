@@ -1,10 +1,13 @@
 {
   "name": "tete-a-tete",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-agnostic A2A (Agent-to-Agent) protocol implementation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "ttt": "dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",

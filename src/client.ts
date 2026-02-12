@@ -1,5 +1,8 @@
 /**
  * A2A Client - sends messages to peer agents
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 
 import type {
@@ -13,6 +16,9 @@ import { buildMessageSendRequest } from "./transport.js";
 
 /**
  * A2A Client for sending messages to other agents
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  * 
  * @example
  * ```typescript
@@ -142,6 +148,9 @@ export class A2AClient {
 
 /**
  * Create a new A2A client instance
+ * 
+ * @deprecated HTTP transport is deprecated. Use RelayTransport for P2P communication.
+ * HTTP may be removed in 1.0.
  */
 export function createClient(options: { timeout?: number } = {}): A2AClient {
   return new A2AClient(options);
